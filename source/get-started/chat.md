@@ -265,6 +265,48 @@ And that completes our chat application, in about 20 lines of code! This is what
 
 <video autoplay="" loop="" width="100%"><source src="https://i.cloudup.com/transcoded/J4xwRU9DRn.mp4"></video>
 
+## Using ES6/ES7 Modules
+
+1. Ensure package,json uses modules:
+
+```js
+{
+  "type":"module",
+  ...
+```
+
+2. Change the index.js to use imports and an altertnative for __dirname:
+
+```js
+import express from "express";
+import { Server as httpServer } from "http";
+import socketio from "socket.io"
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const app = express();
+const http = httpServer(app)
+const io = socketio(http);
+const port = process.env.PORT || 3000;
+
+app.get("/", function (req, res) {
+  res.sendFile(`${__dirname}/index.html`);
+});
+
+io.on("connection", function (socket) {
+  console.log("connected");
+  socket.on("chat message", function (msg) {
+    io.emit("chat message", msg);
+  });
+});
+
+http.listen(port, function () {
+  console.log(`listening on port ${port}`);
+});
+```
+And that's it!
+
 ## Homework
 
 Here are some ideas to improve the application:
